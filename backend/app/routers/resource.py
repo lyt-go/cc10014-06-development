@@ -87,8 +87,12 @@ def get_entry(module: str, entry_id: int) -> dict[str, Any]:
 def create_entry(module: str, payload: EntryPayload) -> ActionResult:
     service = require_service(module)
     entry, missing = service.create_entry(payload.values)
-    if missing:
-        return ActionResult(ok=False, message=f"缺少必填字段：{'、'.join(missing)}")
+    if entry is None:
+        reason = "、".join(missing) if missing else "登记未通过业务校验"
+        # 领域服务可用业务原因拒绝（如交账包必须由竣工报告驱动生成）
+        if missing and all("请" in m or "不能" in m for m in missing):
+            return ActionResult(ok=False, message=reason)
+        return ActionResult(ok=False, message=f"缺少必填字段：{reason}")
     return ActionResult(ok=True, message=f"{service.ENTITY}已登记", entry=entry)
 
 

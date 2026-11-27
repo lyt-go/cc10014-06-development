@@ -11,7 +11,7 @@ class FundingUseService(BaseModuleService):
     MODULE = "funding_use"
     ENTITY = "支出记录"
     OPERATION_TERM = "提交报销"
-    LIST_FIELDS = ["支出项目", "支出类别", "预算金额", "实际金额", "支出日期", "经办人", "审批状态", "备注说明"]
+    LIST_FIELDS = ["支出项目", "支出类别", "预算金额", "实际金额", "支出日期", "经办人", "审批状态", "施工范围", "关联支出", "关联签证", "凭证编号", "备注说明"]
     REQUIRED_FIELDS = ["支出项目", "支出类别", "预算金额"]
     STATUS_ORDER = ["待提交", "已提交", "已核准", "已驳回"]
     ACTION_RULES = {"提交报销": "已提交", "核准支出": "已核准", "驳回支出": "已驳回"}

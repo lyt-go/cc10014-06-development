@@ -82,3 +82,74 @@ export async function fetchDependencyGraph(): Promise<{ nodes: unknown[]; edges:
   if (!response.ok) throw new Error('依赖图加载失败')
   return await response.json()
 }
+
+// ── 费用交账包：从竣工报告生成、下载、备案 ──
+
+export type FundPackageRow = EntryRow & {
+  交账包编号: string
+  关联报告: number
+  报告名称: string
+  编制人: string
+  生成时间: string
+  数据时点: string
+  支出合计: number
+  退款合计: number
+  实付净额: number
+  条目数: number
+  附件数: number
+  备案时间: string | null
+  备案说明: string
+  有新核准行: boolean
+  新核准行: {
+    id: number
+    支出项目: string
+    实际金额: number
+    条目类型?: string
+    是否进入本包数据?: boolean
+    说明?: string
+  }[]
+  快照?: {
+    entries: Record<string, unknown>[]
+    excluded: Record<string, unknown>[]
+    visas: Record<string, unknown>[]
+    attachments: Record<string, unknown>[]
+    totals: Record<string, number>
+  }
+}
+
+export async function listFundPackages(): Promise<{ items: FundPackageRow[]; total: number }> {
+  const response = await request('/api/fund-packages')
+  if (!response.ok) throw new Error('费用交账包读取失败')
+  return await response.json()
+}
+
+export async function createFundPackage(
+  reportId: number,
+): Promise<ActionResult & { entry: FundPackageRow | null }> {
+  const response = await request(`/api/fund-packages/reports/${reportId}`, { method: 'POST' })
+  return await response.json()
+}
+
+export async function fetchFundPackage(packageId: number): Promise<FundPackageRow> {
+  const response = await request(`/api/fund-packages/${packageId}`)
+  if (!response.ok) throw new Error('费用交账包读取失败')
+  return await response.json()
+}
+
+export async function fileFundPackage(packageId: number): Promise<ActionResult> {
+  const response = await request(`/api/fund-packages/${packageId}/file`, { method: 'POST' })
+  return await response.json()
+}
+
+export async function downloadFundPackage(packageId: number, fileName: string): Promise<void> {
+  const response = await request(`/api/fund-packages/${packageId}/file`)
+  if (!response.ok) throw new Error('费用交账包下载失败')
+  const url = URL.createObjectURL(await response.blob())
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = fileName
+  document.body.appendChild(anchor)
+  anchor.click()
+  document.body.removeChild(anchor)
+  URL.revokeObjectURL(url)
+}

@@ -20,6 +20,7 @@ from app.services.safety_briefing import SafetyBriefingService
 from app.services.construction_schedule import ConstructionScheduleService
 from app.services.change_order import ChangeOrderService
 from app.services.completion_summary import CompletionSummaryService
+from app.services.fund_package import FundPackageService
 
 SERVICES: dict[str, BaseModuleService] = {
     "building_survey": BuildingSurveyService(),
@@ -40,6 +41,7 @@ SERVICES: dict[str, BaseModuleService] = {
     "construction_schedule": ConstructionScheduleService(),
     "change_order": ChangeOrderService(),
     "completion_summary": CompletionSummaryService(),
+    "fund_package": FundPackageService(),
 }
 
 

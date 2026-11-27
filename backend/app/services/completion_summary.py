@@ -41,6 +41,15 @@ class CompletionSummaryService(BaseModuleService):
             if unsigned_acceptance:
                 return False, f"尚有{len(unsigned_acceptance)}条验收未签署"
         if action == "执行备案":
+            # 备案必须先完成费用交账：交账包冻结净额与签证凭据后才可执行备案
+            packages = [
+                p for p in store.rows("fund_package")
+                if p.get("关联报告") == entry_id
+            ]
+            if not packages:
+                return False, "尚未生成费用交账包，无法说明实付净额与签证凭据，请先下载费用交账包"
+            if not any(p.get("status") == "已备案" for p in packages):
+                return False, "费用交账包尚未备案，编制人需按包内凭据核对净额并提交备案"
             # 备案前所有档案必须入库
             unarchived = [
                 r for r in store.rows("archive_mgmt") if r.get("status") != "已入库"
